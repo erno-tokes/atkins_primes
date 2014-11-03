@@ -45,14 +45,14 @@ public class PrimesActivity extends ActionBarActivity {
 		}
 	}
 	
-	public void processFile(String path){
+	public void processFile(final String path){
 		PrimeFile.generateFromFile(path, new PrimeFinishedListener(){
 			@Override
 			public void onFinish(ArrayList<Integer[]> results) {
 				TextView text = (TextView)findViewById(R.id.text);
 				if(results == null || results.isEmpty()){
 					findViewById(R.id.progress).setVisibility(View.GONE);
-					text.setText(R.string.no_prime);
+					text.setText(getString(R.string.no_prime) + path);
 					return;
 				}
 				StringBuffer sb = new StringBuffer();
