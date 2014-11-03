@@ -1,8 +1,9 @@
 package com.test.primes.ui;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
@@ -10,13 +11,14 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.test.primes.PrimeFile;
+import com.test.primes.PrimeGen;
+import com.test.primes.PrimeGen.PrimeFinishedListener;
 import com.test.primes.R;
-import com.test.primes.utils.Primes;
 
 public class PrimesActivity extends ActionBarActivity {
 
-	private static final int PICKFILE_RESULT_CODE = 35264;
-	PrimeGen pgen;
+	private static final int CHOOSE_RESULT_CODE = 35264;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -26,40 +28,41 @@ public class PrimesActivity extends ActionBarActivity {
 		((Button)findViewById(R.id.fileButton)).setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
-				if(pgen != null)
-					pgen.cancel(true);
 				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 				intent.setType("file/*");
-				startActivityForResult(intent, PICKFILE_RESULT_CODE);
+				startActivityForResult(intent, CHOOSE_RESULT_CODE);
 			}
 		});
-	}
-
-	@Override
-	public void onStart(){
-		super.onStart();
-
-		findViewById(R.id.progress).setVisibility(View.VISIBLE);
-		((TextView)findViewById(R.id.text)).setText("");
-		pgen = new PrimeGen();
-		pgen.execute(312312);
-	}
-	
-	@Override
-	public void onStop(){
-		if(pgen != null)
-			pgen.cancel(true);
-		
-		super.onStop();
 	}
 	
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data){
-		if(requestCode == PICKFILE_RESULT_CODE && resultCode == Activity.RESULT_OK){
+		if(requestCode == CHOOSE_RESULT_CODE && resultCode == Activity.RESULT_OK){
+			processFile(data.getData().getPath());
 			
+			findViewById(R.id.progress).setVisibility(View.VISIBLE);
+			((TextView)findViewById(R.id.text)).setText("");
 		}
 	}
 	
-	
-	private 
+	public void processFile(String path){
+		PrimeFile.generateFromFile(path, new PrimeFinishedListener(){
+			@Override
+			public void onFinish(ArrayList<Integer[]> results) {
+				TextView text = (TextView)findViewById(R.id.text);
+				if(results == null || results.isEmpty()){
+					findViewById(R.id.progress).setVisibility(View.GONE);
+					text.setText(R.string.no_prime);
+					return;
+				}
+				StringBuffer sb = new StringBuffer();
+				for(Integer[] primes : results){
+					sb.append(java.util.Arrays.toString(primes));
+					sb.append(System.getProperty("line.separator") + System.getProperty("line.separator"));
+				}
+				text.setText(sb.toString());
+				findViewById(R.id.progress).setVisibility(View.GONE);
+			}
+		});
+	}
 }

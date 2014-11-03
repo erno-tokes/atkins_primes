@@ -1,4 +1,4 @@
-package com.test.primes.utils;
+package com.test.primes;
 
 import java.util.ArrayList;
 

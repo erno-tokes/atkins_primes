@@ -5,4 +5,5 @@
     <string name="title_activity_primes">PrimesActivity</string>
     <string name="action_settings">Settings</string>
 	<string name="choose_file">Choose file</string>
+	<string name="no_prime">No prime numbers can be generated</string>
 </resources>
